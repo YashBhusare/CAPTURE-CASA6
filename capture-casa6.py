@@ -388,11 +388,11 @@ if doinitcal == True:
 	casalog.filter('INFO')
 	clearcal(vis=msfilename)
 	for i in range(0,len(myampcals)):
-		default(setjy)
-		if phase_cal_as_amp_cal == True:
+                default(setjy)
+                if phase_cal_as_amp_cal == True:
                         setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
                 else:
-		        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
 # Delay calibration  using the first flux calibrator in the list - should depend on which is less flagged
 	gntable=str(msfilename)+'.K1'+mycalsuffix
 	#if os.path.isdir(str(msfilename)+'.K1'+mycalsuffix) == True:
@@ -554,12 +554,12 @@ if redocal == True:
 	casalog.filter('INFO')
 	clearcal(vis=msfilename)
 	for i in range(0,len(myampcals)):
-		default(setjy)
+                default(setjy)
                 if phase_cal_as_amp_cal == True:
                         setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
                 else:
-		        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
-		logging.info("Done setjy on %s"%(myampcals[i]))
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
+                logging.info("Done setjy on %s"%(myampcals[i]))
 # Delay calibration  using the first flux calibrator in the list - should depend on which is less flagged
 	gntable=str(msfilename)+'.K1'+mycalsuffix
 	#if os.path.isdir(str(msfilename)+'.K1'+mycalsuffix) == True:
