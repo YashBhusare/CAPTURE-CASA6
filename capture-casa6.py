@@ -89,6 +89,9 @@ nwprojpl = config.getint('basic','nwprojpl')
 uvracal=config.get('default','uvracal')
 uvrascal=config.get('default','uvrascal')
 target = config.getboolean('default','target')
+phase_cal_as_amp_cal = config.getboolean('default','phase_cal_as_amp_cal')
+Flux_phase_cal = config.getfloat('default','Flux_phase_cal')
+spectral_index_phase_cal = config.getfloat('default','spectral_index_phase_cal')
 
 
 exec(open("./ugfunctions.py").read())
@@ -204,6 +207,10 @@ if testms == True:
                         mypcals.append(myfields[i])
                 else:
                         mytargets.append(myfields[i])
+        if phase_cal_as_amp_cal == True:
+                logging.info("!!! Standard flux cal is not present and user has given phase_cal_as_amp_cal = True. Using the phasecal as fluxcal !!!")
+                stdcals.append(str(mypcals[0]))
+                myampcals.append(str(mypcals[0]))
         mybpcals = myampcals
         logging.info('Amplitude caibrators are %s', str(myampcals))
         logging.info('Phase calibrators are %s', str(mypcals))
@@ -382,7 +389,10 @@ if doinitcal == True:
 	clearcal(vis=msfilename)
 	for i in range(0,len(myampcals)):
 		default(setjy)
-		setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
+				if phase_cal_as_amp_cal == True:
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
+                else:
+		        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
 # Delay calibration  using the first flux calibrator in the list - should depend on which is less flagged
 	gntable=str(msfilename)+'.K1'+mycalsuffix
 	#if os.path.isdir(str(msfilename)+'.K1'+mycalsuffix) == True:
@@ -401,14 +411,14 @@ if doinitcal == True:
 		os.system('rm -rf '+gntable)
 	default(gaincal)
 	gaincal(vis=msfilename, caltable=gntable, append=False, field=str(','.join(mybpcals)), 
-		spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 2.0, solmode = 'L1R', gaintype = 'G', calmode = 'ap', 
+		spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 3.0, solmode = 'L1R', gaintype = 'G', calmode = 'ap', 
 		gaintable = [str(msfilename)+'.K1'+mycalsuffix], interp = ['nearest,nearestflag', 'nearest,nearestflag' ], parang = True)
 	if os.path.isdir(str(msfilename)+'.B1'+mycalsuffix) == True:
 		os.system('rm -rf '+str(msfilename)+'.B1'+mycalsuffix)
 	bptable=str(msfilename)+'.B1'+mycalsuffix
 	default(bandpass)
 	bandpass(vis=msfilename, caltable=bptable, spw =flagspw, field=str(','.join(mybpcals)), solint='inf', refant=ref_ant, solnorm = True,
-		minsnr=2.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], interp=['nearest,nearestflag','nearest,nearestflag'])
+		minsnr=3.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], interp=['nearest,nearestflag','nearest,nearestflag'])
 # do a gaincal on all calibrators
 	mycals=myampcals+mypcals
 	i=0
@@ -545,7 +555,10 @@ if redocal == True:
 	clearcal(vis=msfilename)
 	for i in range(0,len(myampcals)):
 		default(setjy)
-		setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
+                if phase_cal_as_amp_cal == True:
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
+                else:
+		        setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
 		logging.info("Done setjy on %s"%(myampcals[i]))
 # Delay calibration  using the first flux calibrator in the list - should depend on which is less flagged
 	gntable=str(msfilename)+'.K1'+mycalsuffix
@@ -564,13 +577,13 @@ if redocal == True:
 	if os.path.isdir(gntable) == True:
 		os.system('rm -rf '+gntable)
 	default(gaincal)
-	gaincal(vis=msfilename, caltable=gntable, append=False, field=str(','.join(mybpcals)),spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 2.0, solmode ='L1R', gaintype = 'G', calmode = 'ap', gaintable = [str(msfilename)+'.K1'+mycalsuffix],interp = ['nearest,nearestflag', 'nearest,nearestflag' ], parang = True)
+	gaincal(vis=msfilename, caltable=gntable, append=False, field=str(','.join(mybpcals)),spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 3.0, solmode ='L1R', gaintype = 'G', calmode = 'ap', gaintable = [str(msfilename)+'.K1'+mycalsuffix],interp = ['nearest,nearestflag', 'nearest,nearestflag' ], parang = True)
 	if os.path.isdir(str(msfilename)+'.B1'+mycalsuffix) == True:
 		os.system('rm -rf '+str(msfilename)+'.B1'+mycalsuffix)
 	bptable=str(msfilename)+'.B1'+mycalsuffix
 	default(bandpass)
 	bandpass(vis=msfilename, caltable=bptable, spw =flagspw, field=str(','.join(mybpcals)), solint='inf', refant=ref_ant, solnorm = True,
-		minsnr=2.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], interp=['nearest,nearestflag','nearest,nearestflag'])
+		minsnr=3.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], interp=['nearest,nearestflag','nearest,nearestflag'])
 # do a gaingal on all calibrators
 	mycals=myampcals+mypcals
 	i=0
@@ -653,6 +666,8 @@ if dosplit == True:
                         mypcals.append(myfields[i])
                 else:
                         mytargets.append(myfields[i])
+        if phase_cal_as_amp_cal == True:
+                myampcals.append(str(mypcals[0]))
         gainspw1,goodchans,flg_chans,pols = getgainspw(msfilename)
         for i in range(0,len(mytargets)):
                 if os.path.isdir(mytargets[i]+'split.ms') == True:
