@@ -390,7 +390,7 @@ if doinitcal == True:
 	for i in range(0,len(myampcals)):
                 default(setjy)
                 if phase_cal_as_amp_cal == True:
-                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], standard='manual', fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
                 else:
                         setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
 # Delay calibration  using the first flux calibrator in the list - should depend on which is less flagged
@@ -556,7 +556,7 @@ if redocal == True:
 	for i in range(0,len(myampcals)):
                 default(setjy)
                 if phase_cal_as_amp_cal == True:
-                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
+                        setjy(vis=msfilename, spw=flagspw, field=myampcals[i], standard='manual', fluxdensity=[Flux_phase_cal, 0, 0, 0], spix=[spectral_index_phase_cal])
                 else:
                         setjy(vis=msfilename, spw=flagspw, field=myampcals[i])
                 logging.info("Done setjy on %s"%(myampcals[i]))
